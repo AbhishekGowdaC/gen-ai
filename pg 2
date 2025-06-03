@@ -3,16 +3,13 @@ import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.decomposition import PCA
 
-# Load pre-trained Word2Vec model (Google News)
 print("Loading model... (This may take a while)")
 model = api.load("word2vec-google-news-300")
 print("Model loaded!")
 
-# Select 10 words from the Technology domain
 tech_words = ["computer", "algorithm", "software", "hardware", "AI",
               "cloud", "database", "network", "cybersecurity", "encryption"]
 
-# Get their word vectors (handling missing words)
 word_vectors = []
 valid_words = []
 
@@ -23,14 +20,11 @@ for word in tech_words:
     except KeyError:
         print(f"'{word}' not in vocabulary.")
 
-# Convert to NumPy array
 word_vectors = np.array(word_vectors)
 
-# Perform PCA to reduce to 2D
 pca = PCA(n_components=2)
 reduced_vectors = pca.fit_transform(word_vectors)
 
-# Plot the words in 2D
 plt.figure(figsize=(10, 8))
 for word, (x, y) in zip(valid_words, reduced_vectors):
     plt.scatter(x, y)
