@@ -1,0 +1,46 @@
+import gensim
+import random
+import string
+import gensim.downloader as api
+import nltk
+from nltk.tokenize import sent_tokenize
+print("Loading model Glove....")
+model=api.load("glove-wiki-gigaword-50")
+print("model_loaded")
+
+def similard_words(seed_word,top_n=5):
+    try:
+        similar_word=model.most_similar(seed_word,topn=top_n)
+        return [word[0] for word in similar_word]
+    except KeyError:
+        print(f"{seed_word} not found in vocabulary , try another word")
+        return []
+
+def generate_sentence(seed_word,similar_word):
+    if len(similar_word)<5:
+        return "not enough similar words to generate similar words"
+    sentence_templates=[
+        "The {seed_word} is surrounded by {w0} and {w1}",
+    "The people always assosiate {seed_word} with {w2} and {w3}",
+    "In the land of {seed_word},{w4} is as common word",
+    "In the story about {seed_word} is incomplete without {w1} and {w4}",
+    "The legend says that {seed_word} know the secret of {w0} and {w3}",
+    "Among all odds{seed_word} stood for {w2} aggainst {w4}"]
+    templetes=random.choice(sentence_templates)
+    return templetes.format(
+        seed_word=seed_word,w0=similar_word[0],w1=similar_word[1],w2=similar_word[2],w3=similar_word[3],w4=similar_word[4])
+def generate_paragraph(seed_word):
+    similar_word=similard_words(seed_word,top_n=5)
+    if not similar_word:
+        return f"{seed_word} not found in vocabulary , try another word"
+    paragraph=[]
+    for _ in range(4):
+        sentence=generate_sentence(seed_word,similar_word)
+        if sentence not in paragraph :
+            paragraph.append(sentence)
+    return " ".join(paragraph)
+if __name__=="__main__":
+    seed_word=input("please enter a seed word:").strip().lower()
+    generated_paragraph=generate_paragraph(seed_word)
+    print("generated paragraph")
+    print(generated_paragraph)
