@@ -1,0 +1,34 @@
+import gensim.downloader as api
+print("loading model (golve-wiki-gigaword-100)")
+model=api.load("glove-wiki-gigaword-100")
+def similar_words(word):
+    try:
+        similar_word=model.most_similar(word)
+        print(f"similar word for{word}")
+        for w ,score in similar_word[:5]:
+            print(f"{w} :{score:.4f}")
+    except KeyError:
+        print(f"{word} not found in vocabulary")
+def arthematic_operation(word1,word2,word3):
+    try:
+        result=model.most_similar(positive=[word1,word2],negative=[word3])
+        print(f"'{word1}-'{word3}'+'{word2}'='{result[0][0]}'")
+    except KeyError as e:
+        print(f"{e}")
+def similarity_words(word1,word2):
+    try:
+        similarity=model.similarity(word1,word2)
+        print(f"similarity between {word1} and {word2} is {similarity}")
+    except KeyError as e:
+        print(f"{e}")
+def odd_one(words):
+    try:
+        odd_one=model.doesnt_match(words)
+        print(f"{words}'odd one out is {odd_one}")
+    except KeyError as e:
+        print(f"{e}")
+similar_words("king")
+arthematic_operation("king","man","woman")
+similarity_words("king","queen")
+odd_one(["apple","grapes","mango","bike"])
+    
