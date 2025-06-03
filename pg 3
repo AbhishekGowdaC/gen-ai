@@ -1,0 +1,42 @@
+import gensim
+from gensim.models import Word2Vec
+import nltk
+from nltk.tokenize import word_tokenize
+import matplotlib.pyplot as plt
+from sklearn.manifold import TSNE
+medical_corpus=[
+    "the patient diagonised eith diabetes",
+ "the cardiologist specializes in heart diseases",
+ "insulin is uesd to treat diabetes",
+ "surgery removes tumor",
+ "antibiotics treats bacterial infection",
+ "vaccines help build immunity",
+ "patient with hypertension should reduce salt intake",
+ "neurologist treats nervous system issues"]
+nltk.download('punkt')
+tokenize_sentence=[word_tokenize(sentence.lower()) for sentence in medical_corpus]
+model=Word2Vec(sentences=tokenize_sentence,vector_size=50,window=5,min_count=1,workers=5)
+def plot_embeddings(model):
+    words=list(model.wv.index_to_key)
+    word_vectors=model.wv[words]
+    tsne=TSNE(n_components=2,perplexity=5,random_state=42)
+    reduced_vector=tsne.fit_transform(word_vectors)
+    plt.figure(figsize=(10,6))
+    for i,word in enumerate(words):
+        x,y=reduced_vector[i]
+        plt.scatter(x,y)
+        plt.annotate(word,(x+0.5,y+0.5),fontsize=10)
+    plt.title("tsne visualization of medical corpus emdeddings")
+    plt.grid(True)
+    plt.tight_layout()
+    plt.show()
+plot_embeddings(model)
+def word_similar(word):
+    if word in model.wv:
+        simialar_word=model.wv.most_similar(word,topn=5)
+        print(f"word similar to word {word}")
+        for similar,score in simialar_word:
+            print(f"{similar} {score:.4f}")
+    else:
+        print(f"{word} not found in vocabulary")
+word_similar("surgery")
