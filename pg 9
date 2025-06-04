@@ -1,0 +1,42 @@
+import wikipedia
+import requests
+from bs4 import BeautifulSoup
+def fetch_info(name):
+    try:
+        page=wikipedia.page(name)
+        summary=wikipedia.summary(name,sentences=2)
+        response=requests.get(page.url)
+        soup=BeautifulSoup(response.text,'html.parser')
+        rows=soup.select(' .infobox tr')
+    except wikipedia.exception.DisambiguationError as e:
+        return f"Disambiguation error as {e}"
+    except wikipedia.exception.PageError:
+        return f"page not found"
+    founder="not found"
+    founded="not found"
+    headquaters="not found"
+    for row in rows:
+        th=row.find("th")
+        td=row.find("td")
+        if not th or not td:
+            continue
+        t=th.text.lower()
+        if 'founded' in t or 'established' in t:
+            founded=td.text.strip()
+        elif 'founder' in t or 'founders' in t :
+            founder=td.text.strip()
+        elif 'headquater' in t or 'location' in t:
+            headquater=td.text.lower()
+    cities=['New York','londan','bangaluru','tokoyo']
+    branches=[city for city in cities if city.lower() in page.content.lower()]
+    if not branches:
+        branches=['Not found']
+    return f"""
+    Name:{name},
+    Founder:{founder},
+    Founded:{founded},
+    Headquaters:{headquater},
+    Branches:{branches},
+    Summary:{summary} """
+print(fetch_info(input("enter a university name")))
+    
