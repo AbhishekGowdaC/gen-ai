@@ -1,0 +1,50 @@
+import gensim.downloader as api
+from transformers import pipeline
+import nltk
+
+# Download GloVe embeddings
+print("Loading GloVe embeddings...")
+model = api.load("glove-wiki-gigaword-100")
+print("Model loaded successfully.")
+
+# Load GPT-2 text generation pipeline
+print("Loading GPT-2 text generator...")
+generator = pipeline("text-generation", model="gpt2")
+print("Generator loaded.")
+
+# Original prompt
+original_prompt = "Describe a futuristic city."
+
+# Enrich the prompt using GloVe
+word = "futuristic"
+try:
+    similar_words = [w for w, _ in model.most_similar(word, topn=3)]  # Get 3 similar words
+    enriched_prompt = f"Describe a {', '.join(similar_words)} city filled with advanced technology and architecture."
+except KeyError:
+    enriched_prompt = original_prompt  # Fallback to original if word not found
+
+# Generate responses using sampling for more natural output
+original_output = generator(
+    original_prompt,
+    max_length=100,
+    do_sample=True,
+    top_k=50,
+    top_p=0.95,
+    temperature=0.9
+)[0]['generated_text']
+
+enriched_output = generator(
+    enriched_prompt,
+    max_length=100,
+    do_sample=True,
+    top_k=50,
+    top_p=0.95,
+    temperature=0.9
+)[0]['generated_text']
+
+# Display results
+print("\n--- Original Prompt Output ---\n")
+print(original_output)
+
+print("\n--- Enriched Prompt Output ---\n")
+print(enriched_output)
